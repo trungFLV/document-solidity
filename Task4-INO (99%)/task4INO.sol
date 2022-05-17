@@ -12,20 +12,20 @@ import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 contract task4INO is Ownable, ReentrancyGuard{
     using SafeMath for uint256;
 
-    address public devWallet; // dia chi dev
-    address public paymentToken; // dia chi cua payment
+    address public devWallet; 
+    address public paymentToken; 
     address public addressNftClaim;
-    address public stakingToken; // dia chi staking
-    uint256 public priceNft; // gia cua NFT
+    address public stakingToken; 
+    uint256 public priceNft; 
 
     uint256 public startTimeClaim;
     uint256 public endTimeClaim;
 
-    uint256 public totalNFTsupply; // tổng số NFT đc cung cấp (tổng cung)
+    uint256 public totalNFTsupply; 
 
-    uint256 public amountStakingFCFS;  // so luong dặt 
-    uint256 public totalLimitFCFS; // gioi han so luong mua nft của FCFS
-    uint256 public totalLimitMemberShip; // gioi han so luong mua MemberShip của FCFS
+    uint256 public amountStakingFCFS;  
+    uint256 public totalLimitFCFS; 
+    uint256 public totalLimitMemberShip; 
 
     constructor(address _devWallet, address _paymentToken, address _stakingToken, uint256 _totalNFTsupply) {
 
@@ -45,24 +45,25 @@ contract task4INO is Ownable, ReentrancyGuard{
     buyLevelNFT[] public listBuyLevelNFT; 
 
     //mapping
-    mapping(address => uint256) public amoutNFTClaimMap; // lưu trữ gí trị NFT đc claim của user
-    mapping(address => uint256) public userValueNFTIndexMap; // lưu trữ chỉ số NFT giá trị người dùng 
 
-    mapping(address => bool) public userFCFSMap; // lưu trữ list các user trong FcFS
-    mapping(address => bool) public userMembershipMap; // lưu trữ list các user trong Membership
-    mapping(address => bool) public userBuyCompleteMap; // lưu trữ list user đã mua
-    mapping(address => bool) public userRegistrationCompleteMap; // lưu trữ các user đã đăng ký 
-    mapping(address => uint256) public userRegisteredToBuyMap; //  lưu trữ các user đã mua trong danh sách đã đăng ký
+    mapping(address => uint256) public amoutNFTClaimMap; 
+    mapping(address => uint256) public userValueNFTIndexMap; 
+
+    mapping(address => bool) public userFCFSMap; 
+    mapping(address => bool) public userMembershipMap; 
+    mapping(address => bool) public userBuyCompleteMap; 
+    mapping(address => bool) public userRegistrationCompleteMap; 
+    mapping(address => uint256) public userRegisteredToBuyMap; 
 
     //setup
 
-    function setupPriceNft (uint256 _priceNft) public onlyOwner { // chỉ owner mới có quyền ra giá nft
+    function setupPriceNft (uint256 _priceNft) public onlyOwner { 
         priceNft = _priceNft;
     }
 
     function setupLevel (uint[] calldata _maxAmoutNFT, address[] calldata  _addressNFT) public onlyOwner {
-        delete listBuyLevelNFT; // dùng để xóa mảng 
-        buyLevelNFT memory buyLevelNFT; // gắn truct buyLevelNFT mới theo truct buyLevelNFT ở trên có giá trị memory lưu nội bộ trong funtion
+        delete listBuyLevelNFT; 
+        buyLevelNFT memory buyLevelNFT; 
 
         for(uint256 i=0 ; i <=_maxAmoutNFT.length ; i++){
             
@@ -91,9 +92,9 @@ contract task4INO is Ownable, ReentrancyGuard{
         require(userFCFSMap[msg.sender] == false, " You are in FCFS ");
         require(userMembershipMap[msg.sender] == false, " You are in Membership ");
         require(userRegistrationCompleteMap[msg.sender] == false, " You have registration before ");
-        require(totalLimitFCFS - 1 >= 0 , " You don't have enough money to buy "); // sẽ kiểm tra giới hạn só lượng mua NFT của FCFS có đủ không
+        require(totalLimitFCFS - 1 >= 0 , " You don't have enough money to buy "); 
 
-        ERC20(stakingToken).transferFrom(msg.sender, address(this), amountStakingFCFS); // su dung dia chi cua stakingToken chuyen den contract nay
+        ERC20(stakingToken).transferFrom(msg.sender, address(this), amountStakingFCFS); 
         
         userFCFSMap[msg.sender] = true;
         userRegistrationCompleteMap[msg.sender] = true;
@@ -110,12 +111,12 @@ contract task4INO is Ownable, ReentrancyGuard{
 
         buyLevelNFT storage buyLevelNFT = listBuyLevelNFT[_levelIndex];
 
-        uint256 amountNftregisterBuy = buyLevelNFT.amountMaxClaimNft; // amountNftregisterBuy : số tiền Nft đăng ký Mua
+        uint256 amountNftregisterBuy = buyLevelNFT.amountMaxClaimNft; 
 
         require(totalLimitMemberShip - amountNftregisterBuy >= 0, " You don't have enough money to buy ");
 
         address addressNFT = buyLevelNFT.addressNFT;
-        uint256 idNFT = ERC721Enumerable(addressNFT).tokenOfOwnerByIndex(msg.sender, 0 );// sử dụng thư viện ERC721Enumerable và sử dụng vị trí của NFT để xác định id của NFT đó
+        uint256 idNFT = ERC721Enumerable(addressNFT).tokenOfOwnerByIndex(msg.sender, 0 );
         ERC721(addressNFT).safeTransferFrom(msg.sender, address(this), idNFT);
 
         amoutNFTClaimMap[msg.sender] = amountNftregisterBuy;
