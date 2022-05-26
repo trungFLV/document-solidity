@@ -41,6 +41,12 @@ contract task3IDO is Ownable {
         uint256 endTimeClaim
     );
 
+    modifier validBuyTime{
+        require(block.timestamp >= startTimeBuy, "Purchase time will open soon, please wait");
+        require(block.timestamp <= endTimeBuy, "Time to buy is over !");
+        _;
+    }
+
     function setupIDO(address _addressToken, address _paymentToken) public {
         addressToken = _addressToken;
         paymentToken = _paymentToken;
@@ -78,11 +84,11 @@ contract task3IDO is Ownable {
         endTimeClaim = _endTimeClaim;
     }
 
-    function buy(uint256 _amountTobuy) public payable {
+    function buy(uint256 _amountTobuy) public validBuyTime payable {
         require(contractPause == false, "This contract is Pause");
         require(whitelistMap[msg.sender] == true, "You are not in whitelist !!!");
-        require(block.timestamp >= startTimeBuy, "Purchase time will open soon, please wait");
-        require(block.timestamp <= endTimeBuy, "Time to buy is over !");
+        // require(block.timestamp >= startTimeBuy, "Purchase time will open soon, please wait");
+        // require(block.timestamp <= endTimeBuy, "Time to buy is over !");
 
         if (whitelistMap[msg.sender]) {
             require(amountTobuy <= amoutLimitWhitelist, "Over limit amount to buy !");
